@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "build:ui": "rm -rf build && cd ../part-2/phonebook && npm run build && cp -r build ../../Part-3",
     "deploy": "git push heroku main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test": "jest --verbose"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,10 @@
     "nodemon": "^2.0.16"
   },
   "devDependencies": {
-    "eslint": "^8.14.0"
+    "eslint": "^8.14.0",
+    "jest": "^28.0.3"
+  },
+  "jest": {
+    "testEnvironment": "node"
   }
 }
