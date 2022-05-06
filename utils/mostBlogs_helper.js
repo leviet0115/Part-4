@@ -22,7 +22,6 @@ const mostBlogs = (blogs) => {
     blogs: max,
   };
 
-  console.log(mostBlogs);
   return mostBlogs;
 };
 
