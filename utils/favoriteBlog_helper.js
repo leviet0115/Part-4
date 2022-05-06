@@ -1,9 +1,4 @@
 const favoriteBlog = (blogs) => {
-  const firstBlogOf = (blogs) => ({
-    title: blogs[0].title,
-    author: blogs[0].author,
-    likes: blogs[0].likes,
-  });
 
   if (blogs.length === 0) return {};
 
@@ -17,5 +12,11 @@ const favoriteBlog = (blogs) => {
 
   return firstBlogOf(favBlogs);
 };
+
+const firstBlogOf = (blogs) => ({
+  title: blogs[0].title,
+  author: blogs[0].author,
+  likes: blogs[0].likes,
+});
 
 module.exports = favoriteBlog;
