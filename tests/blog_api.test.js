@@ -38,6 +38,7 @@ beforeEach(async () => {
   await blog.save();
 });
 
+//4.8
 test("blogs are returned as json", async () => {
   await api
     .get("/api/blogs")
@@ -45,7 +46,14 @@ test("blogs are returned as json", async () => {
     .expect("Content-Type", /application\/json/);
 });
 
-test("a new blog is safely saved", async () => {
+//4.9
+test("blogs' unique identifier is named id", async () => {
+  const res = await api.get("/api/blogs");
+  res.body.forEach((blog) => expect(blog.id).toBeDefined());
+});
+
+//4.10
+test("a new blog is successfully created with POST", async () => {
   const newBlog = {
     title: "blog1",
     author: "David Lee",
@@ -67,6 +75,48 @@ test("a new blog is safely saved", async () => {
   expect(lastBlog.author).toBe("David Lee");
   expect(lastBlog.url).toBe("blogs.com/blog1");
   expect(lastBlog.likes).toBe(120);
+});
+
+//4.11 Write a test that verifies that if the likes property is missing from the request
+test("if likes is missing, saved as 0", async () => {
+  const newBlog = {
+    title: "blog1",
+    author: "David Lee",
+    url: "blogs.com/blog1",
+  };
+
+  await api
+    .post("/api/blogs")
+    .send(newBlog)
+    .expect(201)
+    .expect("Content-Type", /application\/json/);
+
+  const res = await api.get("api/blogs");
+  expect(res.body[res.body.length - 1].likes).toBe(0);
+});
+
+//4.12
+test("400 response status if title and url are missing", async () => {
+  const newBlogs = [
+    {
+      title: "blog1",
+      author: "David Lee",
+      likes: 123
+    },
+
+    {
+      author: "Leny Dawn",
+      url: "blogs.com/blog2",
+      likes: 135034
+    },
+  ];
+
+  newBlogs.forEach(blog => {
+    await api
+    .post("/api/blogs")
+    .send(blog)
+    .expect(400)
+  })
 });
 
 afterAll(() => {
