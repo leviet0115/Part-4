@@ -4,14 +4,14 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "dev": "nodemon index.js",
+    "start": "NODE_ENV=production node index.js",
+    "dev": "NODE_ENV=development nodemon index.js",
     "build:ui": "rm -rf build && cd ../part-2/phonebook && npm run build && cp -r build ../../Part-3",
     "deploy": "git push heroku main",
     "deploy:full": "npm run build:ui && git add . && git commit -m uibuild && npm run deploy",
     "logs:prod": "heroku logs --tail",
     "lint": "eslint .",
-    "test": "jest --verbose"
+    "test": "NODE_ENV=test jest --verbose --runInBand --forceExit"
   },
   "repository": {
     "type": "git",
@@ -33,7 +33,8 @@
   },
   "devDependencies": {
     "eslint": "^8.14.0",
-    "jest": "^28.0.3"
+    "jest": "^28.0.3",
+    "supertest": "^6.2.3"
   },
   "jest": {
     "testEnvironment": "node"
