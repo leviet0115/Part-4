@@ -50,7 +50,7 @@ test("a new blog is safely saved", async () => {
     title: "blog1",
     author: "David Lee",
     url: "blogs.com/blog1",
-    likes: 12,
+    likes: 120,
   };
 
   await api
@@ -66,7 +66,7 @@ test("a new blog is safely saved", async () => {
   expect(lastBlog.title).toBe("blog1");
   expect(lastBlog.author).toBe("David Lee");
   expect(lastBlog.url).toBe("blogs.com/blog1");
-  expect(lastBlog.likes).toBe(12);
+  expect(lastBlog.likes).toBe(120);
 });
 
 afterAll(() => {
