@@ -3,6 +3,7 @@ const supertest = require("supertest");
 const app = require("../app");
 const api = supertest(app);
 const Blog = require("../models/blog");
+const { blogsInDB, nonExistedId } = require("../utils/test_helper");
 
 const intialBlogs = [
   {
@@ -33,85 +34,105 @@ beforeEach(async () => {
   await Promise.all(promises);
 });
 
-//4.8
-test("blogs are returned as json", async () => {
-  await api
-    .get("/api/blogs")
-    .expect(200)
-    .expect("Content-Type", /application\/json/);
+describe("when viewing blogs", () => {
+  //4.8
+  test("blogs are returned as json", async () => {
+    await api
+      .get("/api/blogs")
+      .expect(200)
+      .expect("Content-Type", /application\/json/);
+  });
+
+  //4.9
+  test("blogs' unique identifier is named id", async () => {
+    const res = await api.get("/api/blogs");
+    res.body.forEach((blog) => expect(blog.id).toBeDefined());
+  });
 });
 
-//4.9
-test("blogs' unique identifier is named id", async () => {
-  const res = await api.get("/api/blogs");
-  res.body.forEach((blog) => expect(blog.id).toBeDefined());
-});
-
-//4.10
-test("a new blog is successfully created with POST", async () => {
-  const newBlog = {
-    title: "blog1",
-    author: "David Lee",
-    url: "blogs.com/blog1",
-    likes: 120,
-  };
-
-  await api
-    .post("/api/blogs")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
-
-  const res = await api.get("/api/blogs");
-  expect(res.body).toHaveLength(intialBlogs.length + 1);
-
-  const lastBlog = res.body[res.body.length - 1];
-  expect(lastBlog.title).toBe("blog1");
-  expect(lastBlog.author).toBe("David Lee");
-  expect(lastBlog.url).toBe("blogs.com/blog1");
-  expect(lastBlog.likes).toBe(120);
-});
-
-//4.11 Write a test that verifies that if the likes property is missing from the request
-test("if likes is missing, save likes as 0", async () => {
-  const newBlog = {
-    title: "blog1",
-    author: "David Lee",
-    url: "blogs.com/blog1",
-  };
-
-  await api
-    .post("/api/blogs")
-    .send(newBlog)
-    .expect(201)
-    .expect("Content-Type", /application\/json/);
-
-  const res = await api.get("/api/blogs");
-  const lastBlog = res.body[res.body.length - 1];
-  expect(lastBlog.likes).toBe(0);
-});
-
-//4.12
-test("400 response status if title and url are missing", async () => {
-  const newBlogs = [
-    {
+describe("when saving a new blog", () => {
+  //4.10
+  test("a new blog is successfully created with POST", async () => {
+    const newBlog = {
       title: "blog1",
       author: "David Lee",
-      likes: 123,
-    },
+      url: "blogs.com/blog1",
+      likes: 120,
+    };
 
-    {
-      author: "Leny Dawn",
-      url: "blogs.com/blog2",
-      likes: 135034,
-    },
-  ];
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
 
-  const promises = newBlogs.map((blog) =>
-    api.post("/api/blogs").send(blog).expect(400)
-  );
+    const res = await api.get("/api/blogs");
+    expect(res.body).toHaveLength(intialBlogs.length + 1);
 
-  await Promise.all(promises);
+    const lastBlog = res.body[res.body.length - 1];
+    expect(lastBlog.title).toBe("blog1");
+    expect(lastBlog.author).toBe("David Lee");
+    expect(lastBlog.url).toBe("blogs.com/blog1");
+    expect(lastBlog.likes).toBe(120);
+  });
+
+  //4.11 Write a test that verifies that if the likes property is missing from the request
+  test("if likes is missing, save likes as 0", async () => {
+    const newBlog = {
+      title: "blog1",
+      author: "David Lee",
+      url: "blogs.com/blog1",
+    };
+
+    await api
+      .post("/api/blogs")
+      .send(newBlog)
+      .expect(201)
+      .expect("Content-Type", /application\/json/);
+
+    const res = await api.get("/api/blogs");
+    const lastBlog = res.body[res.body.length - 1];
+    expect(lastBlog.likes).toBe(0);
+  });
+
+  //4.12
+  test("returns 400 if title and url are missing", async () => {
+    const newBlogs = [
+      {
+        title: "blog1",
+        author: "David Lee",
+        likes: 123,
+      },
+
+      {
+        author: "Leny Dawn",
+        url: "blogs.com/blog2",
+        likes: 135034,
+      },
+    ];
+
+    const promises = newBlogs.map((blog) =>
+      api.post("/api/blogs").send(blog).expect(400)
+    );
+
+    await Promise.all(promises);
+  });
+});
+
+describe("when deleting a blog", () => {
+  //existed id
+  test("return 204 if id exists", async () => {
+    const blogs = await blogsInDB();
+    const id = blogs[0].id;
+    await api.delete(`/api/blogs/${id}`).expect(204);
+  });
+
+  //non-existed id
+  test("return 404 if id doesn't exist", async () => {
+    const id = await nonExistedId();
+    //console.log(id);
+    await api.delete(`/api/blogs/${id}`).expect(404);
+  });
 });
 
 afterAll(() => {
