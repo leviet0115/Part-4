@@ -92,31 +92,32 @@ test("if likes is missing, save likes as 0", async () => {
     .expect("Content-Type", /application\/json/);
 
   const res = await api.get("/api/blogs");
-  console.log(res.body);
   const lastBlog = res.body[res.body.length - 1];
   expect(lastBlog.likes).toBe(0);
 });
-/*
+
 //4.12
 test("400 response status if title and url are missing", async () => {
   const newBlogs = [
     {
       title: "blog1",
       author: "David Lee",
-      likes: 123
+      likes: 123,
     },
 
     {
       author: "Leny Dawn",
       url: "blogs.com/blog2",
-      likes: 135034
+      likes: 135034,
     },
   ];
 
-  newBlogs.forEach(blog => {
-    await api.post("/api/blogs").send(blog).expect(400)
-  })
-});*/
+  const promises = newBlogs.map((blog) =>
+    api.post("/api/blogs").send(blog).expect(400)
+  );
+
+  await Promise.all(promises);
+});
 
 afterAll(() => {
   mongoose.connection.close();
