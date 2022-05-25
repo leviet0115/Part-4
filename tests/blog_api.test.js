@@ -28,14 +28,9 @@ const intialBlogs = [
 beforeEach(async () => {
   await Blog.deleteMany({});
 
-  let blog = new Blog(intialBlogs[0]);
-  await blog.save();
-
-  blog = new Blog(intialBlogs[1]);
-  await blog.save();
-
-  blog = new Blog(intialBlogs[2]);
-  await blog.save();
+  const blogObjects = intialBlogs.map((blog) => new Blog(blog));
+  const promises = blogObjects.map((object) => object.save());
+  await Promise.all(promises);
 });
 
 //4.8
