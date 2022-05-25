@@ -78,7 +78,7 @@ test("a new blog is successfully created with POST", async () => {
 });
 
 //4.11 Write a test that verifies that if the likes property is missing from the request
-test("if likes is missing, saved as 0", async () => {
+test("if likes is missing, save likes as 0", async () => {
   const newBlog = {
     title: "blog1",
     author: "David Lee",
@@ -91,10 +91,12 @@ test("if likes is missing, saved as 0", async () => {
     .expect(201)
     .expect("Content-Type", /application\/json/);
 
-  const res = await api.get("api/blogs");
-  expect(res.body[res.body.length - 1].likes).toBe(0);
+  const res = await api.get("/api/blogs");
+  console.log(res.body);
+  const lastBlog = res.body[res.body.length - 1];
+  expect(lastBlog.likes).toBe(0);
 });
-
+/*
 //4.12
 test("400 response status if title and url are missing", async () => {
   const newBlogs = [
@@ -112,12 +114,9 @@ test("400 response status if title and url are missing", async () => {
   ];
 
   newBlogs.forEach(blog => {
-    await api
-    .post("/api/blogs")
-    .send(blog)
-    .expect(400)
+    await api.post("/api/blogs").send(blog).expect(400)
   })
-});
+});*/
 
 afterAll(() => {
   mongoose.connection.close();
