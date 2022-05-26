@@ -66,17 +66,17 @@ describe("when saving a new blog", () => {
       .expect(201)
       .expect("Content-Type", /application\/json/);
 
-    const res = await api.get("/api/blogs");
-    expect(res.body).toHaveLength(intialBlogs.length + 1);
+    const existedBlogs = await blogsInDB();
+    expect(existedBlogs).toHaveLength(intialBlogs.length + 1);
 
-    const lastBlog = res.body[res.body.length - 1];
+    const lastBlog = existedBlogs[existedBlogs.length - 1];
     expect(lastBlog.title).toBe("blog1");
     expect(lastBlog.author).toBe("David Lee");
     expect(lastBlog.url).toBe("blogs.com/blog1");
     expect(lastBlog.likes).toBe(120);
   });
 
-  //4.11 Write a test that verifies that if the likes property is missing from the request
+  //4.11
   test("if likes is missing, save likes as 0", async () => {
     const newBlog = {
       title: "blog1",
@@ -122,9 +122,11 @@ describe("when saving a new blog", () => {
 describe("when deleting a blog", () => {
   //existed id
   test("return 204 if id exists", async () => {
-    const blogs = await blogsInDB();
-    const id = blogs[0].id;
-    await api.delete(`/api/blogs/${id}`).expect(204);
+    const beforeDelete = await blogsInDB();
+    const blogToDelete = beforeDelete[0];
+    await api.delete(`/api/blogs/${blogToDelete.id}`).expect(204);
+    const afterDelete = await blogsInDB();
+    expect(afterDelete).not.toContainEqual(blogToDelete);
   });
 
   //non-existed id
